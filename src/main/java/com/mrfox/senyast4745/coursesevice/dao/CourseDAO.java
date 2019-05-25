@@ -6,6 +6,7 @@ import com.mrfox.senyast4745.coursesevice.model.UserModel;
 import com.mrfox.senyast4745.coursesevice.repository.CoursesRepository;
 import com.mrfox.senyast4745.coursesevice.repository.TagsRepository;
 import com.mrfox.senyast4745.coursesevice.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class CourseDAO {
     private final UserRepository userRepository;
     private final CoursesRepository coursesRepository;
 
+    @Autowired
     public CourseDAO(TagsRepository tagsRepository, UserRepository userRepository, CoursesRepository coursesRepository) {
         this.tagsRepository = tagsRepository;
         this.userRepository = userRepository;
