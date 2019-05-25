@@ -41,8 +41,9 @@ public class CourseDAO {
                 new ArrayList<>(Arrays.asList(usersId)), tags, isOpen, new Date(), usersId.length));
     }
 
-    public CourseModel updateCourse(Long id, String name, String description, Long[] adminsId
-            , Long[] usersId, String[] tags, Boolean isOpen) {
+    public CourseModel updateCourse(Long id, Long userId ,String name, String description, Long[] adminsId
+            , Long[] usersId, String[] tags, Boolean isOpen) throws IllegalAccessException {
+        checkAccess(id, userId);
         CourseModel courseModels = coursesRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("Course with id " + id + " not exist."));
         if (name != null && !name.isEmpty()) {
@@ -79,7 +80,7 @@ public class CourseDAO {
         return coursesRepository.save(courseModels);
     }
 
-    public CourseModel subscibeUser(Long id, Long userId) {
+    public CourseModel subscribeUser(Long id, Long userId) {
         CourseModel courseModel = coursesRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("Course with id " + id + " not exist."));
         courseModel.getUserIds().add(userId);
@@ -88,7 +89,7 @@ public class CourseDAO {
         return coursesRepository.save(courseModel);
     }
 
-    public CourseModel unsubscibeUser(Long id, Long userId) {
+    public CourseModel unsubscribeUser(Long id, Long userId) {
         CourseModel courseModel = coursesRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("Course with id " + id + " not exist."));
         courseModel.getUserIds().remove(userId);
@@ -97,11 +98,13 @@ public class CourseDAO {
         return coursesRepository.save(courseModel);
     }
 
-    public CourseModel changeState(Long id, Boolean isOpen) {
-        return updateCourse(id, null, null, null, null, null, isOpen);
+    public CourseModel changeState(Long id, Long userId, Boolean isOpen) throws IllegalAccessException {
+        return updateCourse(id, userId, null, null, null,null, null, isOpen);
+
     }
 
-    public void delete(Long id) {
+    public void delete(Long id, Long userId) throws IllegalAccessException {
+        checkAccess(id, userId);
         CourseModel courseModel = coursesRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("Course with id " + id + " not exist."));
         coursesRepository.delete(courseModel);
@@ -133,13 +136,21 @@ public class CourseDAO {
 
     public Iterable<CourseModel> findAllByCreatorFullName(String fullName) {
         Iterable<UserModel> userModels = userRepository.findByFullName(fullName);
-        ArrayList <CourseModel> courseModels = new ArrayList<>();
+        ArrayList<CourseModel> courseModels = new ArrayList<>();
         for (UserModel u : userModels) {
             findAllByCreatorId(u.getUserId()).forEach(courseModels::add);
         }
-        if(courseModels.isEmpty()){
+        if (courseModels.isEmpty()) {
             throw new IllegalArgumentException("Users with full " + fullName + " has not created an article yet.");
         }
         return courseModels;
+    }
+
+    private void checkAccess(Long id, Long creatorId) throws IllegalAccessException {
+        CourseModel tmp = coursesRepository.findById(id).orElse(null);
+        if (tmp == null || !tmp.getCreatorId().equals(creatorId)) {
+            throw new IllegalAccessException();
+        }
+
     }
 }

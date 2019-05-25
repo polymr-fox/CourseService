@@ -78,7 +78,7 @@ public class MainController {
     public @ResponseBody
     ResponseEntity subscribeUser(@RequestBody SubscribeForm form) {
         try {
-            return ResponseEntity.ok(courseDAO.subscibeUser(form.getId(), form.getUserId()));
+            return ResponseEntity.ok(courseDAO.subscribeUser(form.getId(), form.getUserId()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
                     "Bad Request with: " + gson.toJson(form), "/subscribe")));
@@ -91,7 +91,7 @@ public class MainController {
     public @ResponseBody
     ResponseEntity unsubscribeUser(@RequestBody SubscribeForm form) {
         try {
-            return ResponseEntity.ok(courseDAO.unsubscibeUser(form.getId(), form.getUserId()));
+            return ResponseEntity.ok(courseDAO.unsubscribeUser(form.getId(), form.getUserId()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
                     "Bad Request with: " + gson.toJson(form), "/unsubscribe")));
@@ -104,7 +104,7 @@ public class MainController {
     public @ResponseBody
     ResponseEntity updateAll(@RequestBody UpdateAllForm form) {
         try {
-            return ResponseEntity.ok(courseDAO.updateCourse(form.getId(), form.getName(), form.getDescription(),
+            return ResponseEntity.ok(courseDAO.updateCourse(form.getId(), form.getUserId() ,form.getName(), form.getDescription(),
                     form.getAdminsId(), form.getUsersId(), form.getTags(), form.getOpen()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
@@ -118,7 +118,7 @@ public class MainController {
     public @ResponseBody
     ResponseEntity deleteById(@RequestBody MinimalForm form) {
         try {
-            courseDAO.delete(form.getId());
+            courseDAO.delete(form.getId(), form.getUserId());
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
@@ -132,8 +132,12 @@ public class MainController {
     public @ResponseBody
     ResponseEntity changeState(@RequestBody ChangeStateForm form) {
         try {
-            return ResponseEntity.ok(courseDAO.changeState(form.getId(), form.getOpen()));
-        } catch (Exception e) {
+            return ResponseEntity.ok(courseDAO.changeState(form.getId(), form.getCreatorId() ,form.getOpen()));
+        } catch (IllegalArgumentException e)
+        {
+            return ResponseEntity.status(403).body(gson.toJson(new ExceptionModel(403,"Forbidden", "Access denied to change state", "/change")));
+        }
+        catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
                     "Bad Request with: " + gson.toJson(form), "/change")));
 
