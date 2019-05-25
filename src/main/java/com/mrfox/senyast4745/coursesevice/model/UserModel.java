@@ -43,7 +43,8 @@ public class UserModel implements UserDetails {
     private Date deleteAt;
 
     @Column(name = "role", nullable = false)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
 
 
@@ -51,7 +52,7 @@ public class UserModel implements UserDetails {
         super();
     }
 
-    public UserModel(String fullName, String username, String password, String mail, String links, Date createAt, Date updateAt, Date deleteAt, String role) {
+    public UserModel(String fullName, String username, String password, String mail, String links, Date createAt, Date updateAt, Date deleteAt, Role role) {
         this.fullName = fullName;
         this.username = username;
         this.password = password;
@@ -105,7 +106,7 @@ public class UserModel implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(role));
+        return Collections.singleton(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override
@@ -162,11 +163,11 @@ public class UserModel implements UserDetails {
         this.deleteAt = deleteAt;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 }

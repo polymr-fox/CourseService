@@ -1,9 +1,8 @@
 package com.mrfox.senyast4745.coursesevice.dao;
 
-import com.mrfox.senyast4745.coursesevice.model.CourseModel;
-import com.mrfox.senyast4745.coursesevice.model.TagModel;
-import com.mrfox.senyast4745.coursesevice.model.UserModel;
+import com.mrfox.senyast4745.coursesevice.model.*;
 import com.mrfox.senyast4745.coursesevice.repository.CoursesRepository;
+import com.mrfox.senyast4745.coursesevice.repository.PostRepository;
 import com.mrfox.senyast4745.coursesevice.repository.TagsRepository;
 import com.mrfox.senyast4745.coursesevice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +17,15 @@ public class CourseDAO {
     private final TagsRepository tagsRepository;
     private final UserRepository userRepository;
     private final CoursesRepository coursesRepository;
+    private final PostRepository postRepository;
 
     @Autowired
-    public CourseDAO(TagsRepository tagsRepository, UserRepository userRepository, CoursesRepository coursesRepository) {
+    public CourseDAO(TagsRepository tagsRepository, UserRepository userRepository,
+                     CoursesRepository coursesRepository, PostRepository postRepository) {
         this.tagsRepository = tagsRepository;
         this.userRepository = userRepository;
         this.coursesRepository = coursesRepository;
+        this.postRepository = postRepository;
     }
 
     public CourseModel createCourse(Long creatorId, String courseName, String courseDescription, Long[] adminsId
@@ -61,7 +63,7 @@ public class CourseDAO {
             ArrayList<Long> admins = new ArrayList<>();
             for (Long tmpId : adminsId) {
                 userRepository.findById(tmpId).ifPresent(m -> {
-                    if (m.getRole().equals("ADMIN")) {
+                    if (m.getRole()== Role.ADMIN) {
                         admins.add(m.getUserId());
                     }
                 });
@@ -105,9 +107,7 @@ public class CourseDAO {
 
     public void delete(Long id, Long userId) throws IllegalAccessException {
         checkAccess(id, userId);
-        CourseModel courseModel = coursesRepository.findById(id).orElseThrow(() ->
-                new IllegalArgumentException("Course with id " + id + " not exist."));
-        coursesRepository.delete(courseModel);
+        coursesRepository.deleteById(id);
     }
 
     public Iterable<CourseModel> findAllByRating(int count) {
@@ -148,9 +148,18 @@ public class CourseDAO {
 
     private void checkAccess(Long id, Long creatorId) throws IllegalAccessException {
         CourseModel tmp = coursesRepository.findById(id).orElse(null);
-        if (tmp == null || !tmp.getCreatorId().equals(creatorId)) {
+        UserModel tmpUser = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Incorrect user with user id " + id));
+        if (tmp == null || (!tmp.getCreatorId().equals(creatorId) && tmpUser.getRole()!=(Role.MODERATOR))) {
             throw new IllegalAccessException();
         }
 
+    }
+
+    public Iterable<PostModel> getPosts(Long id){
+        Iterable<PostModel> postModels = postRepository.findAllByTypeAndParentIdOrderByDate(0, id);
+        if (!postModels.iterator().hasNext()) {
+            throw new IllegalArgumentException("Posts with parent id " + id + " not exist.");
+        }
+        return postModels;
     }
 }

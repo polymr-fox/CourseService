@@ -1,6 +1,6 @@
 package com.mrfox.senyast4745.coursesevice.security;
 
-import com.mrfox.senyast4745.articleservice.model.Role;
+import com.mrfox.senyast4745.coursesevice.model.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;

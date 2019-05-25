@@ -22,7 +22,7 @@ public class MainController {
     }
 
 
-    @PreAuthorize("@securityService.hasPermission('ADMIN,TEACHER,STUDENT')")
+    @PreAuthorize("@securityService.hasPermission('Role.ADMIN.name(),Role.TEACHER.name(),Role.STUDENT.name(),Role.MODERATOR.name()')")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity create(@RequestBody CreateForm jsonForm) {
@@ -73,7 +73,7 @@ public class MainController {
         }
     }
 
-    @PreAuthorize("@securityService.hasPermission('ADMIN,TEACHER,STUDENT')")
+    @PreAuthorize("@securityService.hasPermission('Role.ADMIN.name(),Role.TEACHER.name(),Role.STUDENT.name(),Role.MODERATOR.name()')")
     @RequestMapping(value = "/subscribe", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity subscribeUser(@RequestBody SubscribeForm form) {
@@ -86,7 +86,7 @@ public class MainController {
         }
     }
 
-    @PreAuthorize("@securityService.hasPermission('ADMIN,TEACHER,STUDENT')")
+    @PreAuthorize("@securityService.hasPermission('Role.ADMIN.name(),Role.TEACHER.name(),Role.STUDENT.name(),Role.MODERATOR.name()')")
     @RequestMapping(value = "/unsubscribe", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity unsubscribeUser(@RequestBody SubscribeForm form) {
@@ -99,47 +99,63 @@ public class MainController {
         }
     }
 
-    @PreAuthorize("@securityService.hasPermission('ADMIN,TEACHER,STUDENT')")
+    @PreAuthorize("@securityService.hasPermission('Role.ADMIN.name(),Role.TEACHER.name(),Role.STUDENT.name(),Role.MODERATOR.name()')")
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity updateAll(@RequestBody UpdateAllForm form) {
         try {
-            return ResponseEntity.ok(courseDAO.updateCourse(form.getId(), form.getUserId() ,form.getName(), form.getDescription(),
+            return ResponseEntity.ok(courseDAO.updateCourse(form.getId(), form.getUserId(), form.getName(), form.getDescription(),
                     form.getAdminsId(), form.getUsersId(), form.getTags(), form.getOpen()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(403).body(gson.toJson(new ExceptionModel(403, "Forbidden",
+                    "Access denied to update", "/update")));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
                     "Bad Request with: " + gson.toJson(form), "/update")));
-
         }
     }
 
-    @PreAuthorize("@securityService.hasPermission('ADMIN,TEACHER,STUDENT')")
+    @PreAuthorize("@securityService.hasPermission('Role.ADMIN.name(),Role.TEACHER.name(),Role.STUDENT.name(),Role.MODERATOR.name()')")
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity deleteById(@RequestBody MinimalForm form) {
         try {
             courseDAO.delete(form.getId(), form.getUserId());
             return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(403).body(gson.toJson(new ExceptionModel(403, "Forbidden",
+                    "Access denied to delete", "/delete")));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
                     "Bad Request with: " + gson.toJson(form), "/delete")));
-
         }
     }
 
-    @PreAuthorize("@securityService.hasPermission('ADMIN,TEACHER,STUDENT')")
+
+
+    @PreAuthorize("@securityService.hasPermission('Role.ADMIN.name(),Role.TEACHER.name(),Role.STUDENT.name(),Role.MODERATOR.name()')")
     @RequestMapping(value = "/change", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity changeState(@RequestBody ChangeStateForm form) {
         try {
-            return ResponseEntity.ok(courseDAO.changeState(form.getId(), form.getCreatorId() ,form.getOpen()));
-        } catch (IllegalArgumentException e)
-        {
-            return ResponseEntity.status(403).body(gson.toJson(new ExceptionModel(403,"Forbidden", "Access denied to change state", "/change")));
-        }
-        catch (Exception e) {
+            return ResponseEntity.ok(courseDAO.changeState(form.getId(), form.getCreatorId(), form.getOpen()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(403).body(gson.toJson(new ExceptionModel(403, "Forbidden",
+                    "Access denied to change state", "/change")));
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
                     "Bad Request with: " + gson.toJson(form), "/change")));
+        }
+    }
+
+    @RequestMapping(value = "/posts", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity readPosts(@RequestBody IdForm form) {
+        try {
+            return ResponseEntity.ok(new ResponseJsonPostForm(courseDAO.getPosts(form.getId())));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
+                    "Bad Request with: " + gson.toJson(form), "/posts")));
 
         }
     }

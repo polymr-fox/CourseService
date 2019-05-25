@@ -3,7 +3,7 @@ package com.mrfox.senyast4745.coursesevice.security.jwt;
 
 import com.google.common.annotations.Beta;
 import com.google.gson.Gson;
-import com.mrfox.senyast4745.articleservice.forms.ExceptionModel;
+import com.mrfox.senyast4745.coursesevice.forms.ExceptionModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
