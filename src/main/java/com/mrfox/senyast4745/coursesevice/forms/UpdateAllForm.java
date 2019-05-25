@@ -1,21 +1,28 @@
 package com.mrfox.senyast4745.coursesevice.forms;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class UpdateAllForm {
 
     private Long id;
     private String name;
     private String description;
-    private Long[] adminsId;
-    private Long[] usersId;
+    private Long[] adminIds;
+    private Long[] userIds;
     private String[] tags;
     private Boolean isOpen;
 
-    public UpdateAllForm(Long id, String name, String description, Long[] adminsId, Long[] usersId, String[] tags, Boolean isOpen) {
+    @JsonCreator
+    public UpdateAllForm(@JsonProperty("id")Long id, @JsonProperty("name")String name,
+                         @JsonProperty("description")String description, @JsonProperty("adminIds")Long[] adminsId,
+                         @JsonProperty("usersId")Long[] usersId, @JsonProperty("tags")String[] tags,
+                         @JsonProperty("isOpen")Boolean isOpen) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.adminsId = adminsId;
-        this.usersId = usersId;
+        this.adminIds = adminsId;
+        this.userIds = usersId;
         this.tags = tags;
         this.isOpen = isOpen;
     }
@@ -45,19 +52,19 @@ public class UpdateAllForm {
     }
 
     public Long[] getAdminsId() {
-        return adminsId;
+        return adminIds;
     }
 
     public void setAdminsId(Long[] adminsId) {
-        this.adminsId = adminsId;
+        this.adminIds = adminsId;
     }
 
     public Long[] getUsersId() {
-        return usersId;
+        return userIds;
     }
 
     public void setUsersId(Long[] usersId) {
-        this.usersId = usersId;
+        this.userIds = usersId;
     }
 
     public String[] getTags() {

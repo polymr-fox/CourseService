@@ -49,66 +49,66 @@ public class MainController {
         }
     }
 
-    @RequestMapping(value = "/read/usr", method = RequestMethod.POST)
+    @RequestMapping(value = "/read/user", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity readByFullName(@RequestParam FullNameForm form) {
+    ResponseEntity readByFullName(@RequestBody FullNameForm form) {
         try {
             return ResponseEntity.ok(courseDAO.findAllByCreatorFullName(form.getFullName()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
-                    "Bad Request with: " + gson.toJson(form), "/read/usr")));
+                    "Bad Request with: " + gson.toJson(form), "/read/user")));
 
         }
     }
 
-    @RequestMapping(value = "/read/rtg", method = RequestMethod.POST)
+    @RequestMapping(value = "/read/rating", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity readByRating(@RequestParam RatingForm form) {
+    ResponseEntity readByRating(@RequestBody RatingForm form) {
         try {
             return ResponseEntity.ok(courseDAO.findAllByRating(form.getRating()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
-                    "Bad Request with: " + gson.toJson(form), "/read/rtg")));
+                    "Bad Request with: " + gson.toJson(form), "/read/rating")));
 
         }
     }
 
     @PreAuthorize("@securityService.hasPermission('ADMIN,TEACHER,STUDENT')")
-    @RequestMapping(value = "/sb", method = RequestMethod.POST)
+    @RequestMapping(value = "/subscribe", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity subscribeUser(@RequestParam SubscribeForm form) {
+    ResponseEntity subscribeUser(@RequestBody SubscribeForm form) {
         try {
             return ResponseEntity.ok(courseDAO.subscibeUser(form.getId(), form.getUserId()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
-                    "Bad Request with: " + gson.toJson(form), "/sb")));
+                    "Bad Request with: " + gson.toJson(form), "/subscribe")));
 
         }
     }
 
     @PreAuthorize("@securityService.hasPermission('ADMIN,TEACHER,STUDENT')")
-    @RequestMapping(value = "/usb", method = RequestMethod.POST)
+    @RequestMapping(value = "/unsubscribe", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity unsubscribeUser(@RequestParam SubscribeForm form) {
+    ResponseEntity unsubscribeUser(@RequestBody SubscribeForm form) {
         try {
             return ResponseEntity.ok(courseDAO.unsubscibeUser(form.getId(), form.getUserId()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
-                    "Bad Request with: " + gson.toJson(form), "/usb")));
+                    "Bad Request with: " + gson.toJson(form), "/unsubscribe")));
 
         }
     }
 
     @PreAuthorize("@securityService.hasPermission('ADMIN,TEACHER,STUDENT')")
-    @RequestMapping(value = "/upd", method = RequestMethod.POST)
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity updateAll(@RequestParam UpdateAllForm form) {
+    ResponseEntity updateAll(@RequestBody UpdateAllForm form) {
         try {
             return ResponseEntity.ok(courseDAO.updateCourse(form.getId(), form.getName(), form.getDescription(),
                     form.getAdminsId(), form.getUsersId(), form.getTags(), form.getOpen()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
-                    "Bad Request with: " + gson.toJson(form), "/upd")));
+                    "Bad Request with: " + gson.toJson(form), "/update")));
 
         }
     }
@@ -116,7 +116,7 @@ public class MainController {
     @PreAuthorize("@securityService.hasPermission('ADMIN,TEACHER,STUDENT')")
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity deleteById(@RequestParam MinimalForm form) {
+    ResponseEntity deleteById(@RequestBody MinimalForm form) {
         try {
             courseDAO.delete(form.getId());
             return ResponseEntity.ok().build();

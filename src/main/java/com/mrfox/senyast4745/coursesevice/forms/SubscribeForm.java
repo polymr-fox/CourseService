@@ -1,10 +1,14 @@
 package com.mrfox.senyast4745.coursesevice.forms;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class SubscribeForm {
     private Long id;
     private Long userId;
 
-    public SubscribeForm(Long id, Long userId) {
+    @JsonCreator
+    public SubscribeForm(@JsonProperty("id")Long id, @JsonProperty("userId")Long userId) {
         this.id = id;
         this.userId = userId;
     }

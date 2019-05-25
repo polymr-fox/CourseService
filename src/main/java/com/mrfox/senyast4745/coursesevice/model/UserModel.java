@@ -45,6 +45,8 @@ public class UserModel implements UserDetails {
     @Column(name = "role", nullable = false)
     private String role;
 
+
+
     public UserModel() {
         super();
     }

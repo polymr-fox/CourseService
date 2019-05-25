@@ -1,5 +1,8 @@
 package com.mrfox.senyast4745.coursesevice.forms;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class CreateForm {
 
 
@@ -11,7 +14,11 @@ public class CreateForm {
     private String[] tags;
     private boolean isOpen;
 
-    public CreateForm(Long creatorId, String courseName, String courseDescription, Long[] adminIds, Long[] userIds, String[] tags, boolean isOpen) {
+    @JsonCreator
+    public CreateForm(@JsonProperty("creatorId") Long creatorId, @JsonProperty("courseName") String courseName,
+                      @JsonProperty("courseDescription") String courseDescription,
+                      @JsonProperty("adminIds") Long[] adminIds, @JsonProperty("userIds") Long[] userIds,
+                      @JsonProperty("tags") String[] tags, @JsonProperty("isOpen") boolean isOpen) {
         this.creatorId = creatorId;
         this.courseName = courseName;
         this.courseDescription = courseDescription;
