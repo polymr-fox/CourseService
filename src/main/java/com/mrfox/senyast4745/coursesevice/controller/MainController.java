@@ -12,11 +12,14 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class MainController {
 
-    @Autowired
-    private CourseDAO courseDAO;
+    private final CourseDAO courseDAO;
 
     private Gson gson = new Gson();
 
+    @Autowired
+    public MainController(CourseDAO courseDAO) {
+        this.courseDAO = courseDAO;
+    }
 
 
     @PreAuthorize("@securityService.hasPermission('ADMIN,TEACHER,STUDENT')")
@@ -41,7 +44,7 @@ public class MainController {
             return ResponseEntity.ok(courseDAO.findAll());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
-                    "DataBase is empty.", "/read_by_usr")));
+                    "DataBase is empty.", "/read")));
 
         }
     }
@@ -53,19 +56,19 @@ public class MainController {
             return ResponseEntity.ok(courseDAO.findAllByCreatorFullName(form.getFullName()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
-                    "Bad Request with: " + gson.toJson(form), "/read_by_usr")));
+                    "Bad Request with: " + gson.toJson(form), "/read/usr")));
 
         }
     }
 
-    @RequestMapping(value = "/read/rth", method = RequestMethod.POST)
+    @RequestMapping(value = "/read/rtg", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity readByRating(@RequestParam RatingForm form) {
         try {
             return ResponseEntity.ok(courseDAO.findAllByRating(form.getRating()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
-                    "Bad Request with: " + gson.toJson(form), "/read_by_usr")));
+                    "Bad Request with: " + gson.toJson(form), "/read/rtg")));
 
         }
     }
@@ -78,7 +81,7 @@ public class MainController {
             return ResponseEntity.ok(courseDAO.subscibeUser(form.getId(), form.getUserId()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
-                    "Bad Request with: " + gson.toJson(form), "/read_by_usr")));
+                    "Bad Request with: " + gson.toJson(form), "/sb")));
 
         }
     }
@@ -91,7 +94,7 @@ public class MainController {
             return ResponseEntity.ok(courseDAO.unsubscibeUser(form.getId(), form.getUserId()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
-                    "Bad Request with: " + gson.toJson(form), "/read_by_usr")));
+                    "Bad Request with: " + gson.toJson(form), "/usb")));
 
         }
     }
@@ -105,7 +108,7 @@ public class MainController {
                     form.getAdminsId(), form.getUsersId(), form.getTags(), form.getOpen()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
-                    "Bad Request with: " + gson.toJson(form), "/read_by_usr")));
+                    "Bad Request with: " + gson.toJson(form), "/upd")));
 
         }
     }
@@ -119,7 +122,7 @@ public class MainController {
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
-                    "Bad Request with: " + gson.toJson(form), "/read_by_usr")));
+                    "Bad Request with: " + gson.toJson(form), "/delete")));
 
         }
     }
