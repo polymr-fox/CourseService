@@ -41,7 +41,7 @@ public class MainController {
     public @ResponseBody
     ResponseEntity readAll() {
         try {
-            return ResponseEntity.ok(courseDAO.findAll());
+            return ResponseEntity.ok(new ResponseJsonForm(courseDAO.findAll()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
                     "DataBase is empty.", "/read")));
@@ -53,7 +53,7 @@ public class MainController {
     public @ResponseBody
     ResponseEntity readByFullName(@RequestBody FullNameForm form) {
         try {
-            return ResponseEntity.ok(courseDAO.findAllByCreatorFullName(form.getFullName()));
+            return ResponseEntity.ok(new ResponseJsonForm(courseDAO.findAllByCreatorFullName(form.getFullName())));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
                     "Bad Request with: " + gson.toJson(form), "/read/user")));
@@ -65,7 +65,7 @@ public class MainController {
     public @ResponseBody
     ResponseEntity readByRating(@RequestBody RatingForm form) {
         try {
-            return ResponseEntity.ok(courseDAO.findAllByRating(form.getRating()));
+            return ResponseEntity.ok(new ResponseJsonForm(courseDAO.findAllByRating(form.getRating())));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
                     "Bad Request with: " + gson.toJson(form), "/read/rating")));
@@ -123,6 +123,19 @@ public class MainController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
                     "Bad Request with: " + gson.toJson(form), "/delete")));
+
+        }
+    }
+
+    @PreAuthorize("@securityService.hasPermission('ADMIN,TEACHER,STUDENT')")
+    @RequestMapping(value = "/change", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity changeState(@RequestBody ChangeStateForm form) {
+        try {
+            return ResponseEntity.ok(courseDAO.changeState(form.getId(), form.getOpen()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
+                    "Bad Request with: " + gson.toJson(form), "/change")));
 
         }
     }
