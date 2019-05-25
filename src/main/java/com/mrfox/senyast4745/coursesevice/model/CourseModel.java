@@ -22,10 +22,10 @@ public class CourseModel {
     private Long creatorId;
 
     @Column(name = "course_name", nullable = false)
-    private String eventName;
+    private String courseName;
 
     @Column(name = "course_description", nullable = false, unique = true)
-    private String eventDescription;
+    private String courseDescription;
 
     @Column(name = "admin_ids")
     @Convert(converter = ListLongConverter.class)
@@ -33,7 +33,7 @@ public class CourseModel {
 
     @Column(name = "user_ids")
     @Convert(converter = ListLongConverter.class)
-    private ArrayList<Long> usersId;
+    private ArrayList<Long> userIds;
 
     @Column(name = "tags", nullable = false)
     @Convert(converter = SimpleStringConverter.class)
@@ -53,12 +53,12 @@ public class CourseModel {
         super();
     }
 
-    public CourseModel(Long creatorId, String eventName, String eventDescription, ArrayList<Long> adminIds, ArrayList<Long> usersId, String[] tags, boolean isOpen, Date date, int subsCount) {
+    public CourseModel(Long creatorId, String courseName, String courseDescription, ArrayList<Long> adminIds, ArrayList<Long> userIds, String[] tags, boolean isOpen, Date date, int subsCount) {
         this.creatorId = creatorId;
-        this.eventName = eventName;
-        this.eventDescription = eventDescription;
+        this.courseName = courseName;
+        this.courseDescription = courseDescription;
         this.adminIds = adminIds;
-        this.usersId = usersId;
+        this.userIds = userIds;
         this.tags = tags;
         this.isOpen = isOpen;
         this.date = date;
@@ -81,20 +81,20 @@ public class CourseModel {
         this.creatorId = creatorId;
     }
 
-    public String getEventName() {
-        return eventName;
+    public String getCourseName() {
+        return courseName;
     }
 
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
     }
 
-    public String getEventDescription() {
-        return eventDescription;
+    public String getCourseDescription() {
+        return courseDescription;
     }
 
-    public void setEventDescription(String eventDescription) {
-        this.eventDescription = eventDescription;
+    public void setCourseDescription(String courseDescription) {
+        this.courseDescription = courseDescription;
     }
 
     public ArrayList<Long> getAdminIds() {
@@ -105,12 +105,12 @@ public class CourseModel {
         this.adminIds = adminIds;
     }
 
-    public ArrayList<Long> getUsersId() {
-        return usersId;
+    public ArrayList<Long> getUserIds() {
+        return userIds;
     }
 
-    public void setUsersId(ArrayList<Long> usersId) {
-        this.usersId = usersId;
+    public void setUserIds(ArrayList<Long> userIds) {
+        this.userIds = userIds;
     }
 
     public String[] getTags() {

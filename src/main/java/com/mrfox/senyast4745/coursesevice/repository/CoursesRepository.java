@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CoursesRepository extends CrudRepository<CourseModel, Long> {
+    Iterable<CourseModel> findAllBySubsCount(int subsCount);
+    Iterable<CourseModel> findAllByCreatorId(Long creatorId);
 }
