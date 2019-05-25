@@ -1,12 +1,19 @@
 package com.mrfox.senyast4745.coursesevice.dao;
 
+import com.mrfox.senyast4745.coursesevice.forms.NotificationForm;
 import com.mrfox.senyast4745.coursesevice.model.*;
 import com.mrfox.senyast4745.coursesevice.repository.CoursesRepository;
 import com.mrfox.senyast4745.coursesevice.repository.PostRepository;
 import com.mrfox.senyast4745.coursesevice.repository.TagsRepository;
 import com.mrfox.senyast4745.coursesevice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +21,7 @@ import java.util.Date;
 
 @Component
 public class CourseDAO {
+    private static final int TYPE = 0;
     private final TagsRepository tagsRepository;
     private final UserRepository userRepository;
     private final CoursesRepository coursesRepository;
@@ -156,10 +164,31 @@ public class CourseDAO {
     }
 
     public Iterable<PostModel> getPosts(Long id){
-        Iterable<PostModel> postModels = postRepository.findAllByTypeAndParentIdOrderByDate(0, id);
+        Iterable<PostModel> postModels = postRepository.findAllByTypeAndParentIdOrderByDate(TYPE, id);
         if (!postModels.iterator().hasNext()) {
             throw new IllegalArgumentException("Posts with parent id " + id + " not exist.");
         }
         return postModels;
+    }
+
+    public void sendNotification(UserModel[] userModels, Long id, Role role, String token) {
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        final String url = "127.0.0.1:9996/" + "notification" + role.name();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+
+        NotificationForm form = new NotificationForm(userModels, TYPE, id);
+
+        HttpEntity<NotificationForm> request = new HttpEntity<>(form, headers);
+        ResponseEntity<Void> response = restTemplate.postForEntity(url, request, Void.class);
+
+        if (response.getStatusCode() != HttpStatus.OK) {
+            throw new HttpServerErrorException(response.getStatusCode());
+        }
+
+
     }
 }

@@ -160,5 +160,17 @@ public class MainController {
         }
     }
 
+    @RequestMapping(value = "/notification", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity sendNotification(@RequestBody RequestNotificationForm form, @RequestHeader(value = "Authorization") String token) {
+        try {
+            courseDAO.sendNotification(form.getUserModels(), form.getId(), form.getRole(), token);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(gson.toJson(new ExceptionModel(400, "Bad Request",
+                    "Bad Request with: " + gson.toJson(form), "/posts")));
+        }
+    }
+
 
 }
