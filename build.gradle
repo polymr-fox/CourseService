@@ -13,7 +13,7 @@ plugins {
 }
 
 group 'com.mrfox.senyast4745'
-version '1.0-SNAPSHOT'
+version '0.2-BETA'
 
 sourceCompatibility = 1.8
 

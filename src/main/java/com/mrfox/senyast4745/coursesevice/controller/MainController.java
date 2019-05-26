@@ -22,7 +22,7 @@ public class MainController {
     }
 
 
-    @PreAuthorize("@securityService.hasPermission('Role.ADMIN.name(),Role.TEACHER.name(),Role.STUDENT.name(),Role.MODERATOR.name()')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('MOERATOR') or hasAuthority('STUDENT')")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity create(@RequestBody CreateForm jsonForm) {
@@ -73,7 +73,7 @@ public class MainController {
         }
     }
 
-    @PreAuthorize("@securityService.hasPermission('Role.ADMIN.name(),Role.TEACHER.name(),Role.STUDENT.name(),Role.MODERATOR.name()')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('MOERATOR') or hasAuthority('STUDENT')")
     @RequestMapping(value = "/subscribe", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity subscribeUser(@RequestBody SubscribeForm form) {
@@ -86,7 +86,7 @@ public class MainController {
         }
     }
 
-    @PreAuthorize("@securityService.hasPermission('Role.ADMIN.name(),Role.TEACHER.name(),Role.STUDENT.name(),Role.MODERATOR.name()')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('MOERATOR') or hasAuthority('STUDENT')")
     @RequestMapping(value = "/unsubscribe", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity unsubscribeUser(@RequestBody SubscribeForm form) {
@@ -99,7 +99,7 @@ public class MainController {
         }
     }
 
-    @PreAuthorize("@securityService.hasPermission('Role.ADMIN.name(),Role.TEACHER.name(),Role.STUDENT.name(),Role.MODERATOR.name()')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('MOERATOR') or hasAuthority('STUDENT')")
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity updateAll(@RequestBody UpdateAllForm form) {
@@ -115,7 +115,7 @@ public class MainController {
         }
     }
 
-    @PreAuthorize("@securityService.hasPermission('Role.ADMIN.name(),Role.TEACHER.name(),Role.STUDENT.name(),Role.MODERATOR.name()')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('MOERATOR') or hasAuthority('STUDENT')")
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity deleteById(@RequestBody MinimalForm form) {
@@ -133,7 +133,7 @@ public class MainController {
 
 
 
-    @PreAuthorize("@securityService.hasPermission('Role.ADMIN.name(),Role.TEACHER.name(),Role.STUDENT.name(),Role.MODERATOR.name()')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('MOERATOR') or hasAuthority('STUDENT')")
     @RequestMapping(value = "/change", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity changeState(@RequestBody ChangeStateForm form) {
