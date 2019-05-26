@@ -23,6 +23,9 @@ public class PostModel {
     @Column(name = "parent_id")
     private Long parentId;
 
+    @Column(name = "user_id")
+    private Long userId;
+
     @Column(name = "type", nullable = false)
     private int type;
 
@@ -40,11 +43,12 @@ public class PostModel {
         super();
     }
 
-    public PostModel(String articleName, String articleText, Long parentId, int type, String[] tags, Date date) {
+    public PostModel(String articleName, String articleText, Long parentId,Long userId ,int type, String[] tags, Date date) {
 
         this.articleName = articleName;
         this.articleText = articleText;
         this.parentId = parentId;
+        this.userId = userId;
         this.type = type;
         this.tags = tags;
 
@@ -84,6 +88,14 @@ public class PostModel {
 
     public void setParentId(Long parentId) {
         this.parentId = parentId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public int getType() {

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CreateForm {
 
 
-    private Long creatorId;
+
     private String courseName;
     private String courseDescription;
     private Long[] adminIds;
@@ -15,25 +15,17 @@ public class CreateForm {
     private boolean isOpen;
 
     @JsonCreator
-    public CreateForm(@JsonProperty("creatorId") Long creatorId, @JsonProperty("courseName") String courseName,
+    public CreateForm( @JsonProperty("courseName") String courseName,
                       @JsonProperty("courseDescription") String courseDescription,
                       @JsonProperty("adminIds") Long[] adminIds, @JsonProperty("userIds") Long[] userIds,
                       @JsonProperty("tags") String[] tags, @JsonProperty("isOpen") boolean isOpen) {
-        this.creatorId = creatorId;
+
         this.courseName = courseName;
         this.courseDescription = courseDescription;
         this.adminIds = adminIds;
         this.userIds = userIds;
         this.tags = tags;
         this.isOpen = isOpen;
-    }
-
-    public Long getCreatorId() {
-        return creatorId;
-    }
-
-    public void setCreatorId(Long creatorId) {
-        this.creatorId = creatorId;
     }
 
     public String getCourseName() {

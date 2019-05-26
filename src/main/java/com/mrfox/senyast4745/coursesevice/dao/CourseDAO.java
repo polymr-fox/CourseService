@@ -6,7 +6,11 @@ import com.mrfox.senyast4745.coursesevice.repository.CoursesRepository;
 import com.mrfox.senyast4745.coursesevice.repository.PostRepository;
 import com.mrfox.senyast4745.coursesevice.repository.TagsRepository;
 import com.mrfox.senyast4745.coursesevice.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,7 +19,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.nio.file.LinkOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -28,6 +31,9 @@ public class CourseDAO {
     private final CoursesRepository coursesRepository;
     private final PostRepository postRepository;
 
+    @Value("${jwt.secretKey:hello}")
+    private String secretKey;
+
     @Autowired
     public CourseDAO(TagsRepository tagsRepository, UserRepository userRepository,
                      CoursesRepository coursesRepository, PostRepository postRepository) {
@@ -37,7 +43,7 @@ public class CourseDAO {
         this.postRepository = postRepository;
     }
 
-    public CourseModel createCourse(Long creatorId, String courseName, String courseDescription, Long[] adminsId
+    public CourseModel createCourse(String token, String courseName, String courseDescription, Long[] adminsId
             , Long[] usersId, String[] tags, boolean isOpen) {
         if (tags.length == 0) {
             throw new IllegalArgumentException("No tags found");
@@ -48,13 +54,14 @@ public class CourseDAO {
                 tagsRepository.save(new TagModel(tmp));
             }
         }
+        Long creatorId = getUserIdFromToken(token);
         return coursesRepository.save(new CourseModel(creatorId, courseName, courseDescription, new ArrayList<>(Arrays.asList(adminsId)),
                 new ArrayList<>(Arrays.asList(usersId)), tags, isOpen, new Date(), usersId.length));
     }
 
-    public CourseModel updateCourse(Long id, Long userId, String name, String description, Long[] adminsId
+    public CourseModel updateCourse(String token ,Long id, String name, String description, Long[] adminsId
             , Long[] usersId, String[] tags, Boolean isOpen) throws IllegalAccessException {
-        checkAccess(id, userId);
+        checkAccess(id, getUserIdFromToken(token));
         CourseModel courseModels = coursesRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("Course with id " + id + " not exist."));
         if (name != null && !name.isEmpty()) {
@@ -91,7 +98,8 @@ public class CourseDAO {
         return coursesRepository.save(courseModels);
     }
 
-    public CourseModel subscribeUser(Long id, Long userId) {
+    public CourseModel subscribeUser(String token ,Long id) {
+        Long userId = getUserIdFromToken(token);
         CourseModel courseModel = coursesRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("Course with id " + id + " not exist."));
         if (!courseModel.getUserIds().contains(userId) && !userId.equals(courseModel.getCreatorId())) {
@@ -103,7 +111,8 @@ public class CourseDAO {
         throw new IllegalStateException("User with id " + userId + " can not subscribe.");
     }
 
-    public CourseModel unsubscribeUser(Long id, Long userId) {
+    public CourseModel unsubscribeUser(String token ,Long id) {
+        Long userId = getUserIdFromToken(token);
         CourseModel courseModel = coursesRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("Course with id " + id + " not exist."));
 
@@ -115,13 +124,13 @@ public class CourseDAO {
         throw new IllegalStateException("User with id " + userId + " can not subscribe.");
     }
 
-    public CourseModel changeState(Long id, Long userId, Boolean isOpen) throws IllegalAccessException {
-        return updateCourse(id, userId, null, null, null, null, null, isOpen);
+    public CourseModel changeState(String token ,Long id, Boolean isOpen) throws IllegalAccessException {
+        return updateCourse(token ,id, null, null, null, null, null, isOpen);
 
     }
 
-    public void delete(Long id, Long userId) throws IllegalAccessException {
-        checkAccess(id, userId);
+    public void delete(String token ,Long id) throws IllegalAccessException {
+        checkAccess(id, getUserIdFromToken(token));
         coursesRepository.deleteById(id);
     }
 
@@ -196,6 +205,27 @@ public class CourseDAO {
             throw new HttpServerErrorException(response.getStatusCode());
         }
 
+
+    }
+
+    public PostModel createPost(String token, String postName, String postDescription, Long parentId, String[] tags) throws IllegalAccessException {
+        Long userId = getUserIdFromToken(token);
+        CourseModel eventModel = coursesRepository.findById(parentId).orElseThrow(() -> new IllegalArgumentException("Can not find event with id " + parentId));
+        if (eventModel.getCreatorId().equals(userId)) {
+            PostModel postModel = new PostModel(postName, postDescription, parentId, userId, TYPE, tags, new Date());
+            return postRepository.save(postModel);
+        }
+        throw new IllegalAccessException("User with id " + userId + " have no permission to create post.");
+
+    }
+
+    private Long getUserIdFromToken(String token) {
+        Jws<Claims> claims = parseToken(token);
+        return (Long) claims.getBody().get("userId");
+    }
+
+    private Jws<Claims> parseToken(String token) {
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
 
     }
 }
