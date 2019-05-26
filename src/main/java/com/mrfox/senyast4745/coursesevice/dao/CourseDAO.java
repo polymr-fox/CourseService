@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.file.LinkOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -51,7 +52,7 @@ public class CourseDAO {
                 new ArrayList<>(Arrays.asList(usersId)), tags, isOpen, new Date(), usersId.length));
     }
 
-    public CourseModel updateCourse(Long id, Long userId ,String name, String description, Long[] adminsId
+    public CourseModel updateCourse(Long id, Long userId, String name, String description, Long[] adminsId
             , Long[] usersId, String[] tags, Boolean isOpen) throws IllegalAccessException {
         checkAccess(id, userId);
         CourseModel courseModels = coursesRepository.findById(id).orElseThrow(() ->
@@ -71,7 +72,7 @@ public class CourseDAO {
             ArrayList<Long> admins = new ArrayList<>();
             for (Long tmpId : adminsId) {
                 userRepository.findById(tmpId).ifPresent(m -> {
-                    if (m.getRole()== Role.ADMIN) {
+                    if (m.getRole() == Role.ADMIN) {
                         admins.add(m.getUserId());
                     }
                 });
@@ -93,23 +94,29 @@ public class CourseDAO {
     public CourseModel subscribeUser(Long id, Long userId) {
         CourseModel courseModel = coursesRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("Course with id " + id + " not exist."));
-        courseModel.getUserIds().add(userId);
-        int tmp = courseModel.getSubsCount();
-        courseModel.setSubsCount(++tmp);
-        return coursesRepository.save(courseModel);
+        if (!courseModel.getUserIds().contains(userId) && !userId.equals(courseModel.getCreatorId())) {
+            courseModel.getUserIds().add(userId);
+            int tmp = courseModel.getSubsCount();
+            courseModel.setSubsCount(++tmp);
+            return coursesRepository.save(courseModel);
+        }
+        throw new IllegalStateException("User with id " + userId + " can not subscribe.");
     }
 
     public CourseModel unsubscribeUser(Long id, Long userId) {
         CourseModel courseModel = coursesRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("Course with id " + id + " not exist."));
-        courseModel.getUserIds().remove(userId);
-        int tmp = courseModel.getSubsCount();
-        courseModel.setSubsCount(--tmp);
-        return coursesRepository.save(courseModel);
+
+        if (courseModel.getUserIds().remove(userId)) {
+            int tmp = courseModel.getSubsCount();
+            courseModel.setSubsCount(--tmp);
+            return coursesRepository.save(courseModel);
+        }
+        throw new IllegalStateException("User with id " + userId + " can not subscribe.");
     }
 
     public CourseModel changeState(Long id, Long userId, Boolean isOpen) throws IllegalAccessException {
-        return updateCourse(id, userId, null, null, null,null, null, isOpen);
+        return updateCourse(id, userId, null, null, null, null, null, isOpen);
 
     }
 
@@ -157,13 +164,13 @@ public class CourseDAO {
     private void checkAccess(Long id, Long creatorId) throws IllegalAccessException {
         CourseModel tmp = coursesRepository.findById(id).orElse(null);
         UserModel tmpUser = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Incorrect user with user id " + id));
-        if (tmp == null || (!tmp.getCreatorId().equals(creatorId) && tmpUser.getRole()!=(Role.MODERATOR))) {
+        if (tmp == null || (!tmp.getCreatorId().equals(creatorId) && tmpUser.getRole() != (Role.MODERATOR))) {
             throw new IllegalAccessException();
         }
 
     }
 
-    public Iterable<PostModel> getPosts(Long id){
+    public Iterable<PostModel> getPosts(Long id) {
         Iterable<PostModel> postModels = postRepository.findAllByTypeAndParentIdOrderByDate(TYPE, id);
         if (!postModels.iterator().hasNext()) {
             throw new IllegalArgumentException("Posts with parent id " + id + " not exist.");
@@ -171,8 +178,8 @@ public class CourseDAO {
         return postModels;
     }
 
-    public void sendNotification(UserModel[] userModels, Long id, Role role, String token) {
-
+    public void sendNotification(UserModel[] userModels, Long id, Long creatorId, Role role, String token) throws IllegalAccessException {
+        checkAccess(id, creatorId);
         RestTemplate restTemplate = new RestTemplate();
 
         final String url = "127.0.0.1:9996/" + "notification" + role.name();

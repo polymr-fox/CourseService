@@ -9,7 +9,7 @@ public class MinimalForm {
     private Long userId;
 
     @JsonCreator
-    public MinimalForm(@JsonProperty("id")Long id, @JsonProperty("userId") Long userId) {
+    public MinimalForm(@JsonProperty("id")Long id, @JsonProperty("creatorId") Long userId) {
         this.id = id;
         this.userId = userId;
     }

@@ -9,12 +9,15 @@ import com.mrfox.senyast4745.coursesevice.model.UserModel;
 public class RequestNotificationForm {
     private UserModel[] userModels;
     private Long id;
+    private Long creatorId;
     private Role role;
 
     @JsonCreator
-    public RequestNotificationForm(@JsonProperty("userModels") UserModel[] userModels, @JsonProperty("id") Long id, @JsonProperty("role") Role role) {
+    public RequestNotificationForm(@JsonProperty("userModels") UserModel[] userModels, @JsonProperty("id") Long id,
+                                   @JsonProperty("creatorId") Long creatorId, @JsonProperty("role") Role role) {
         this.userModels = userModels;
         this.id = id;
+        this.creatorId= creatorId;
         this.role = role;
     }
 
@@ -32,6 +35,14 @@ public class RequestNotificationForm {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
     }
 
     public Role getRole() {
