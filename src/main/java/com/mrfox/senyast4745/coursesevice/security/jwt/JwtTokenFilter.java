@@ -43,7 +43,9 @@ public class JwtTokenFilter extends GenericFilterBean {
                     e.getMessage(), ((HttpServletRequest) req).getRequestURI());
             Gson gson = new Gson();
             String json = gson.toJson(ex);
-            res.getWriter().append(json);
+            try {
+                res.getWriter().append(json);
+            } catch (Exception ignore){}
         }
         filterChain.doFilter(req, res);
     }
