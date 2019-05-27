@@ -22,6 +22,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 @Component
 public class CourseDAO {
@@ -45,15 +47,14 @@ public class CourseDAO {
 
     public CourseModel createCourse(String token, String courseName, String courseDescription, Long[] adminsId
             , Long[] usersId, String[] tags, boolean isOpen) {
+        ArrayList<String> tmp = new ArrayList<>(Arrays.asList(tags));
+        tmp.add(courseName);
+        tmp.add(courseName);
+        checkSymbols(tmp);
         if (tags.length == 0) {
             throw new IllegalArgumentException("No tags found");
         }
-        for (String tmp : tags) {
-            Iterable<TagModel> tmpTag = tagsRepository.findAllByTagName(tmp);
-            if (!tmpTag.iterator().hasNext()) {
-                tagsRepository.save(new TagModel(tmp));
-            }
-        }
+        checkingTags(tags);
         Long creatorId = getUserIdFromToken(token);
         return coursesRepository.save(new CourseModel(creatorId, courseName, courseDescription, new ArrayList<>(Arrays.asList(adminsId)),
                 new ArrayList<>(Arrays.asList(usersId)), tags, isOpen, new Date(), usersId.length));
@@ -62,12 +63,19 @@ public class CourseDAO {
     public CourseModel updateCourse(String token ,Long id, String name, String description, Long[] adminsId
             , Long[] usersId, String[] tags, Boolean isOpen) throws IllegalAccessException {
         checkAccess(id, getUserIdFromToken(token));
+        ArrayList<String> tmp = new ArrayList<>();
         CourseModel courseModels = coursesRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("Course with id " + id + " not exist."));
         if (name != null && !name.isEmpty()) {
+            tmp.add(name);
+            checkSymbols(tmp);
+            tmp.clear();
             courseModels.setCourseName(name);
         }
         if (description != null && !description.isEmpty()) {
+            tmp.add(description);
+            checkSymbols(tmp);
+            tmp.clear();
             courseModels.setCourseDescription(description);
         }
         if (usersId != null && usersId.length > 0) {
@@ -88,6 +96,10 @@ public class CourseDAO {
         }
 
         if (tags != null && tags.length > 0) {
+            tmp.addAll(Arrays.asList(tags));
+            checkSymbols(tmp);
+            tmp.clear();
+            checkingTags(tags);
             courseModels.setTags(tags);
         }
 
@@ -96,6 +108,21 @@ public class CourseDAO {
         }
 
         return coursesRepository.save(courseModels);
+    }
+
+    private void checkingTags(String[] tags) {
+        Iterable<TagModel> tmpTag = tagsRepository.findAll();
+        for (String s : tags) {
+            AtomicBoolean find = new AtomicBoolean(false);
+            tmpTag.forEach((t) -> {
+                if(t.getTagName().equals(s)){
+                    find.set(true);
+                }
+            });
+            if (!find.get()) {
+                tagsRepository.save(new TagModel(s));
+            }
+        }
     }
 
     public CourseModel subscribeUser(String token ,Long id) {
@@ -209,6 +236,10 @@ public class CourseDAO {
     }
 
     public PostModel createPost(String token, String postName, String postDescription, Long parentId, String[] tags) throws IllegalAccessException {
+        ArrayList<String> tmp = new ArrayList<>(Arrays.asList(tags));
+        tmp.add(postName);
+        tmp.add(postDescription);
+        checkSymbols(tmp);
         Long userId = getUserIdFromToken(token);
         CourseModel eventModel = coursesRepository.findById(parentId).orElseThrow(() -> new IllegalArgumentException("Can not find event with id " + parentId));
         if (eventModel.getCreatorId().equals(userId)) {
@@ -226,6 +257,18 @@ public class CourseDAO {
 
     private Jws<Claims> parseToken(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+
+    }
+
+    private void checkSymbols(ArrayList<String> text){
+        String regex = "[};]";
+
+        for (String s: text
+        ) {
+            if(Pattern.matches(regex, s)){
+                throw new IllegalArgumentException("incorrect symbols in " + s);
+            }
+        }
 
     }
 }
